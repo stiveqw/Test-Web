@@ -1,37 +1,31 @@
-'use client'
+import WelcomeSection from './components/WelcomeSection'
 
-import { useState, useEffect } from 'react'
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
+async function fetchMainData() {
+  try {
+    const res = await fetch('http://localhost:3000/api/main', { cache: 'no-store' })
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`)
+    }
+    return await res.json()
+  } catch (error) {
+    console.error('Failed to fetch main data:', error)
+    return {
+      welcomeTitle: "우리 대학교",
+      welcomeDescription: "현재 기술적인 문제가 발생했습니다. 나중에 다시 확인해 주세요.",
+      welcomeBackgroundImage: "/image/main/welcome-background.jfif"
+    }
+  }
 }
 
-export default function Home() {
-  const [posts, setPosts] = useState<Post[]>([])
-
-  useEffect(() => {
-    async function fetchPosts() {
-      const response = await fetch('/api/posts')
-      const data = await response.json()
-      setPosts(data)
-    }
-    fetchPosts()
-  }, [])
+export default async function Home() {
+  const mainData = await fetchMainData()
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">게시물 목록</h1>
-      <ul className="space-y-4">
-        {posts.map(post => (
-          <li key={post.id} className="border p-4 rounded-lg">
-            <h2 className="text-xl font-semibold">{post.title}</h2>
-            <p className="mt-2">{post.content}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <WelcomeSection 
+      title={mainData.welcomeTitle}
+      description={mainData.welcomeDescription}
+      backgroundImage={mainData.welcomeBackgroundImage}
+    />
   )
 }
 
